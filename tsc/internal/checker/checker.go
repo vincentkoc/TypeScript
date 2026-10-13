@@ -17092,33 +17092,8 @@ func (c *Checker) getTypeForVariableLikeDeclaration(declaration *ast.Node, inclu
 			// parameters of function types defined in JSDoc in TS files don't have symbols
 			return nil
 		}
-		fn := declaration.Parent
-		// For a parameter of a set accessor, use the type of the get accessor if one is present
-		if ast.IsSetAccessorDeclaration(fn) && c.hasBindableName(fn) {
-			getter := ast.GetDeclarationOfKind(c.getSymbolOfDeclaration(declaration.Parent), ast.KindGetAccessor)
-			if getter != nil {
-				getterSignature := c.getSignatureFromDeclaration(getter)
-				thisParameter := c.getAccessorThisParameter(fn)
-				if thisParameter != nil && declaration == thisParameter {
-					// Use the type from the *getter*
-					debug.Assert(thisParameter.Type() == nil)
-					return c.getTypeOfSymbol(getterSignature.thisParameter)
-				}
-				return c.getReturnTypeOfSignature(getterSignature)
-			}
-		}
-		if t := c.getParameterTypeOfFullSignature(fn, declaration); t != nil {
+		if t := c.getParameterTypeFromSignature(declaration, isOptional); t != nil {
 			return t
-		}
-		// Use contextual parameter type if one is available
-		var t *Type
-		if declaration.Symbol().Name == ast.InternalSymbolNameThis {
-			t = c.getContextualThisParameterType(fn)
-		} else {
-			t = c.getContextuallyTypedParameterType(declaration)
-		}
-		if t != nil {
-			return c.addOptionalityEx(t, false /*isProperty*/, isOptional)
 		}
 	}
 	// Use the type of the initializer expression if one is present and the declaration is
@@ -17172,6 +17147,40 @@ func (c *Checker) getTypeForVariableLikeDeclaration(declaration *ast.Node, inclu
 	return nil
 }
 
+// getParameterTypeFromSignature does not inspect a parameter's initializer, so binding
+// defaults can use the same signature sources without recursively checking themselves.
+func (c *Checker) getParameterTypeFromSignature(declaration *ast.Node, isOptional bool) *Type {
+	fn := declaration.Parent
+	// For a parameter of a set accessor, use the type of the get accessor if one is present
+	if ast.IsSetAccessorDeclaration(fn) && c.hasBindableName(fn) {
+		getter := ast.GetDeclarationOfKind(c.getSymbolOfDeclaration(declaration.Parent), ast.KindGetAccessor)
+		if getter != nil {
+			getterSignature := c.getSignatureFromDeclaration(getter)
+			thisParameter := c.getAccessorThisParameter(fn)
+			if thisParameter != nil && declaration == thisParameter {
+				// Use the type from the *getter*
+				debug.Assert(thisParameter.Type() == nil)
+				return c.getTypeOfSymbol(getterSignature.thisParameter)
+			}
+			return c.getReturnTypeOfSignature(getterSignature)
+		}
+	}
+	if t := c.getParameterTypeOfFullSignature(fn, declaration); t != nil {
+		return t
+	}
+	// Use contextual parameter type if one is available
+	var t *Type
+	if declaration.Symbol().Name == ast.InternalSymbolNameThis {
+		t = c.getContextualThisParameterType(fn)
+	} else {
+		t = c.getContextuallyTypedParameterType(declaration)
+	}
+	if t != nil {
+		return c.addOptionalityEx(t, false /*isProperty*/, isOptional)
+	}
+	return nil
+}
+
 func (c *Checker) checkDeclarationInitializer(declaration *ast.Node, checkMode CheckMode, contextualType *Type) *Type {
 	initializer := declaration.Initializer()
 	t := c.getQuickTypeOfExpression(initializer)
@@ -17209,7 +17218,7 @@ func (c *Checker) padObjectLiteralType(t *Type, pattern *ast.Node) *Type {
 		}
 		name := c.getPropertyNameFromBindingElement(e)
 		if name != ast.InternalSymbolNameMissing && c.getPropertyOfType(t, name) == nil {
-			if declaredType != nil && c.getTypeOfPropertyOfType(declaredType, name) != nil {
+			if declaredType != nil && (IsTypeAny(declaredType) || c.getTypeOfPropertyOrIndexSignatureOfType(declaredType, name) != nil) {
 				continue
 			}
 			missingElements = append(missingElements, e)
@@ -17240,20 +17249,39 @@ func (c *Checker) getDeclaredTypeOfParameterBindingPattern(pattern *ast.Node) *T
 	var t *Type
 	switch {
 	case ast.IsBindingElement(parent):
-		if !ast.IsObjectBindingPattern(parent.Parent) {
-			return nil
-		}
 		outer := c.getDeclaredTypeOfParameterBindingPattern(parent.Parent)
-		name := c.getPropertyNameFromBindingElement(parent)
-		if outer == nil || name == ast.InternalSymbolNameMissing {
+		if outer == nil || IsTypeAny(outer) {
+			return outer
+		}
+		switch parent.Parent.Kind {
+		case ast.KindObjectBindingPattern:
+			name := c.getPropertyNameFromBindingElement(parent)
+			if name == ast.InternalSymbolNameMissing {
+				return nil
+			}
+			t = c.getTypeOfPropertyOrIndexSignatureOfType(outer, name)
+		case ast.KindArrayBindingPattern:
+			index := slices.Index(parent.Parent.Elements(), parent)
+			if hasDotDotDotToken(parent) {
+				elementType := c.getIteratedTypeOrElementType(IterationUseDestructuring, outer, c.undefinedType, nil, false)
+				if elementType == nil {
+					return nil
+				}
+				t = c.getTypeOfArrayBindingRestElement(outer, index, elementType)
+			} else if c.isArrayLikeType(outer) {
+				t = c.getIndexedAccessTypeOrUndefined(outer, c.getNumberLiteralType(jsnum.Number(index)), AccessFlagsExpressionPosition|AccessFlagsAllowMissing, nil, nil)
+			} else {
+				// Resolve the declared iterator element without checking the default initializer again.
+				t = c.getIteratedTypeOrElementType(IterationUseDestructuring, outer, c.undefinedType, nil, false)
+			}
+		default:
 			return nil
 		}
-		t = c.getTypeOfPropertyOfType(outer, name)
 	case ast.IsParameterDeclaration(parent):
 		if parent.Type() != nil {
 			t = c.getTypeFromTypeNode(parent.Type())
-		} else {
-			t = c.getContextuallyTypedParameterType(parent)
+		} else if parent.Symbol() != nil {
+			t = c.getParameterTypeFromSignature(parent, isOptionalDeclaration(parent))
 		}
 	}
 	if t == nil {
@@ -18180,22 +18208,7 @@ func (c *Checker) getBindingElementTypeFromParentType(declaration *ast.Node, par
 		elementType := c.checkIteratedTypeOrElementType(IterationUseDestructuring|core.IfElse(hasDotDotDotToken(declaration), 0, IterationUsePossiblyOutOfBounds), parentType, c.undefinedType, pattern)
 		index := slices.Index(pattern.Elements(), declaration)
 		if hasDotDotDotToken(declaration) {
-			// If the parent is a tuple type, the rest element has a tuple type of the
-			// remaining tuple element types. Otherwise, the rest element has an array type with same
-			// element type as the parent type.
-			baseConstraint := c.mapType(parentType, func(t *Type) *Type {
-				if t.flags&TypeFlagsInstantiableNonPrimitive != 0 {
-					return c.getBaseConstraintOrType(t)
-				}
-				return t
-			})
-			if everyType(baseConstraint, isTupleType) {
-				t = c.mapType(baseConstraint, func(t *Type) *Type {
-					return c.sliceTupleType(t, index, 0)
-				})
-			} else {
-				t = c.createArrayType(elementType)
-			}
+			t = c.getTypeOfArrayBindingRestElement(parentType, index, elementType)
 		} else if c.isArrayLikeType(parentType) {
 			indexType := c.getNumberLiteralType(jsnum.Number(index))
 			declaredType := core.OrElse(c.getIndexedAccessTypeOrUndefined(parentType, indexType, accessFlags, declaration.Name(), nil), c.errorType)
@@ -18218,6 +18231,24 @@ func (c *Checker) getBindingElementTypeFromParentType(declaration *ast.Node, par
 		return t
 	}
 	return c.widenTypeInferredFromInitializer(declaration, c.getUnionTypeEx([]*Type{c.getNonUndefinedType(t), c.checkDeclarationInitializer(declaration, CheckModeNormal, nil)}, UnionReductionSubtype, nil, nil))
+}
+
+func (c *Checker) getTypeOfArrayBindingRestElement(parentType *Type, index int, elementType *Type) *Type {
+	// If the parent is a tuple type, the rest element has a tuple type of the
+	// remaining tuple element types. Otherwise, the rest element has an array type with same
+	// element type as the parent type.
+	baseConstraint := c.mapType(parentType, func(t *Type) *Type {
+		if t.flags&TypeFlagsInstantiableNonPrimitive != 0 {
+			return c.getBaseConstraintOrType(t)
+		}
+		return t
+	})
+	if everyType(baseConstraint, isTupleType) {
+		return c.mapType(baseConstraint, func(t *Type) *Type {
+			return c.sliceTupleType(t, index, 0)
+		})
+	}
+	return c.createArrayType(elementType)
 }
 
 func (c *Checker) getRestType(source *Type, properties []*ast.Node, symbol *ast.Symbol) *Type {

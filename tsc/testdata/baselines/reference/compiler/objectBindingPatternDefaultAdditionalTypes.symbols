@@ -1,0 +1,241 @@
+//// [tests/cases/compiler/objectBindingPatternDefaultAdditionalTypes.ts] ////
+
+=== /rest.ts ===
+// Rest bindings must carry the remaining tuple or array type into nested defaults.
+export function tupleRest([... [{ value } = {}]]: [{ value?: number }]) {
+>tupleRest : Symbol(tupleRest, Decl(rest.ts, 0, 0))
+>value : Symbol(value, Decl(rest.ts, 1, 33))
+>value : Symbol(value, Decl(rest.ts, 1, 52))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 2, 9))
+>value : Symbol(value, Decl(rest.ts, 1, 33))
+}
+export function arrayRest([... [{ value } = {}]]: { value?: number }[]) {
+>arrayRest : Symbol(arrayRest, Decl(rest.ts, 3, 1))
+>value : Symbol(value, Decl(rest.ts, 4, 33))
+>value : Symbol(value, Decl(rest.ts, 4, 51))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 5, 9))
+>value : Symbol(value, Decl(rest.ts, 4, 33))
+}
+export function tupleRestOffset([, ...[{ value } = {}]]: [boolean, { value?: number }]) {
+>tupleRestOffset : Symbol(tupleRestOffset, Decl(rest.ts, 6, 1))
+>value : Symbol(value, Decl(rest.ts, 7, 40))
+>value : Symbol(value, Decl(rest.ts, 7, 68))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 8, 9))
+>value : Symbol(value, Decl(rest.ts, 7, 40))
+}
+export const contextualRest: (options: { value?: number }[]) => void = ([... [{ value } = {}]]) => {
+>contextualRest : Symbol(contextualRest, Decl(rest.ts, 10, 12))
+>options : Symbol(options, Decl(rest.ts, 10, 30))
+>value : Symbol(value, Decl(rest.ts, 10, 40))
+>value : Symbol(value, Decl(rest.ts, 10, 79))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 11, 9))
+>value : Symbol(value, Decl(rest.ts, 10, 79))
+
+};
+export function iterableRest([... [{ value } = {}]]: Iterable<{ value?: number }>) {
+>iterableRest : Symbol(iterableRest, Decl(rest.ts, 12, 2))
+>value : Symbol(value, Decl(rest.ts, 13, 36))
+>Iterable : Symbol(Iterable, Decl(lib.es2015.iterable.d.ts, --, --))
+>value : Symbol(value, Decl(rest.ts, 13, 63))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 14, 9))
+>value : Symbol(value, Decl(rest.ts, 13, 36))
+}
+export function constrainedTupleRest<T extends [boolean, { value?: number }]>([, ...[{ value } = {}]]: T) {
+>constrainedTupleRest : Symbol(constrainedTupleRest, Decl(rest.ts, 15, 1))
+>T : Symbol(T, Decl(rest.ts, 16, 37))
+>value : Symbol(value, Decl(rest.ts, 16, 58))
+>value : Symbol(value, Decl(rest.ts, 16, 86))
+>T : Symbol(T, Decl(rest.ts, 16, 37))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 17, 9))
+>value : Symbol(value, Decl(rest.ts, 16, 86))
+}
+export function anyRest([... [{ value } = {}]]: any) {
+>anyRest : Symbol(anyRest, Decl(rest.ts, 18, 1))
+>value : Symbol(value, Decl(rest.ts, 19, 31))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 20, 9))
+>value : Symbol(value, Decl(rest.ts, 19, 31))
+}
+
+// Property names and generic constraints still provide the element type.
+declare const key: unique symbol;
+>key : Symbol(key, Decl(rest.ts, 24, 13))
+
+export function symbolKey({ [key]: { value } = {} }: { [key]?: { value?: number } }) {
+>symbolKey : Symbol(symbolKey, Decl(rest.ts, 24, 33))
+>key : Symbol(key, Decl(rest.ts, 24, 13))
+>value : Symbol(value, Decl(rest.ts, 25, 36))
+>[key] : Symbol([key], Decl(rest.ts, 25, 54))
+>key : Symbol(key, Decl(rest.ts, 24, 13))
+>value : Symbol(value, Decl(rest.ts, 25, 64))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 26, 9))
+>value : Symbol(value, Decl(rest.ts, 25, 36))
+}
+export function genericConstraint<T extends { inner?: { value?: number } }>({ inner: { value } = {} }: T) {
+>genericConstraint : Symbol(genericConstraint, Decl(rest.ts, 27, 1))
+>T : Symbol(T, Decl(rest.ts, 28, 34))
+>inner : Symbol(inner, Decl(rest.ts, 28, 45))
+>value : Symbol(value, Decl(rest.ts, 28, 55))
+>inner : Symbol(inner, Decl(rest.ts, 28, 45))
+>value : Symbol(value, Decl(rest.ts, 28, 86))
+>T : Symbol(T, Decl(rest.ts, 28, 34))
+
+    const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 29, 9))
+>value : Symbol(value, Decl(rest.ts, 28, 86))
+}
+
+export class Accessor {
+>Accessor : Symbol(Accessor, Decl(rest.ts, 30, 1))
+
+    get options(): { inner?: { value?: number } } { return {}; }
+>options : Symbol(Accessor.options, Decl(rest.ts, 32, 23), Decl(rest.ts, 33, 64))
+>inner : Symbol(inner, Decl(rest.ts, 33, 20))
+>value : Symbol(value, Decl(rest.ts, 33, 30))
+
+    set options({ inner: { value } = {} }) {
+>options : Symbol(Accessor.options, Decl(rest.ts, 32, 23), Decl(rest.ts, 33, 64))
+>inner : Symbol(inner, Decl(rest.ts, 33, 20))
+>value : Symbol(value, Decl(rest.ts, 34, 26))
+
+        const text: string = value;
+>text : Symbol(text, Decl(rest.ts, 35, 13))
+>value : Symbol(value, Decl(rest.ts, 34, 26))
+    }
+}
+
+// A default with no supplied type must keep its implicit-any diagnostic.
+export function untypedRest([... [{ value } = {}]] = []) {
+>untypedRest : Symbol(untypedRest, Decl(rest.ts, 37, 1))
+>value : Symbol(value, Decl(rest.ts, 40, 35))
+
+    value;
+>value : Symbol(value, Decl(rest.ts, 40, 35))
+}
+export function missingRestTuple([, ...[{ value } = {}]]: [boolean]) {
+>missingRestTuple : Symbol(missingRestTuple, Decl(rest.ts, 42, 1))
+>value : Symbol(value, Decl(rest.ts, 43, 41))
+
+    value;
+>value : Symbol(value, Decl(rest.ts, 43, 41))
+}
+
+// The originally reported object cases and their array counterpart stay well typed.
+interface IssueInner {
+>IssueInner : Symbol(IssueInner, Decl(rest.ts, 45, 1))
+
+    a?: number;
+>a : Symbol(IssueInner.a, Decl(rest.ts, 48, 22))
+
+    b?: number;
+>b : Symbol(IssueInner.b, Decl(rest.ts, 49, 15))
+}
+interface IssueOuter {
+>IssueOuter : Symbol(IssueOuter, Decl(rest.ts, 51, 1))
+
+    inner?: IssueInner;
+>inner : Symbol(IssueOuter.inner, Decl(rest.ts, 52, 22))
+>IssueInner : Symbol(IssueInner, Decl(rest.ts, 45, 1))
+}
+export function withSibling({ inner: { a = 1, b } = {} }: IssueOuter) {
+>withSibling : Symbol(withSibling, Decl(rest.ts, 54, 1))
+>inner : Symbol(IssueOuter.inner, Decl(rest.ts, 52, 22))
+>a : Symbol(a, Decl(rest.ts, 55, 38))
+>b : Symbol(b, Decl(rest.ts, 55, 45))
+>IssueOuter : Symbol(IssueOuter, Decl(rest.ts, 51, 1))
+
+    const first: number = a;
+>first : Symbol(first, Decl(rest.ts, 56, 9))
+>a : Symbol(a, Decl(rest.ts, 55, 38))
+
+    const second: number | undefined = b;
+>second : Symbol(second, Decl(rest.ts, 57, 9))
+>b : Symbol(b, Decl(rest.ts, 55, 45))
+
+    return [first, second];
+>first : Symbol(first, Decl(rest.ts, 56, 9))
+>second : Symbol(second, Decl(rest.ts, 57, 9))
+}
+export function alone({ inner: { b } = {} }: IssueOuter) {
+>alone : Symbol(alone, Decl(rest.ts, 59, 1))
+>inner : Symbol(IssueOuter.inner, Decl(rest.ts, 52, 22))
+>b : Symbol(b, Decl(rest.ts, 60, 32))
+>IssueOuter : Symbol(IssueOuter, Decl(rest.ts, 51, 1))
+
+    const second: number | undefined = b;
+>second : Symbol(second, Decl(rest.ts, 61, 9))
+>b : Symbol(b, Decl(rest.ts, 60, 32))
+
+    return second;
+>second : Symbol(second, Decl(rest.ts, 61, 9))
+}
+export function arrayForm({ inner: [a = 1, b] = [] }: { inner?: number[] }) {
+>arrayForm : Symbol(arrayForm, Decl(rest.ts, 63, 1))
+>inner : Symbol(inner, Decl(rest.ts, 64, 55))
+>a : Symbol(a, Decl(rest.ts, 64, 36))
+>b : Symbol(b, Decl(rest.ts, 64, 42))
+>inner : Symbol(inner, Decl(rest.ts, 64, 55))
+
+    const first: number = a;
+>first : Symbol(first, Decl(rest.ts, 65, 9))
+>a : Symbol(a, Decl(rest.ts, 64, 36))
+
+    const second: number | undefined = b;
+>second : Symbol(second, Decl(rest.ts, 66, 9))
+>b : Symbol(b, Decl(rest.ts, 64, 42))
+
+    return [first, second];
+>first : Symbol(first, Decl(rest.ts, 65, 9))
+>second : Symbol(second, Decl(rest.ts, 66, 9))
+}
+
+=== /signature.js ===
+// JSDoc function signatures type parameters even without contextual functions.
+/** @type {(options?: { value?: number }) => void} */
+export function fullSignature({ value } = {}) {
+>fullSignature : Symbol(fullSignature, Decl(signature.js, 0, 0))
+>value : Symbol(value, Decl(signature.js, 2, 31))
+
+    /** @type {string} */
+    const text = value;
+>text : Symbol(text, Decl(signature.js, 4, 9))
+>value : Symbol(value, Decl(signature.js, 2, 31))
+}
+
+/** @type {(options?: { inner?: { value?: number } }) => void} */
+export function nestedSignature({ inner: { value } = {} } = {}) {
+>nestedSignature : Symbol(nestedSignature, Decl(signature.js, 5, 1))
+>value : Symbol(value, Decl(signature.js, 8, 42))
+
+    /** @type {string} */
+    const text = value;
+>text : Symbol(text, Decl(signature.js, 10, 9))
+>value : Symbol(value, Decl(signature.js, 8, 42))
+}
+
+/** @param {{ value?: number }} options */
+export function parameterTag({ value } = {}) {
+>parameterTag : Symbol(parameterTag, Decl(signature.js, 11, 1))
+>value : Symbol(value, Decl(signature.js, 14, 30))
+
+    /** @type {string} */
+    const text = value;
+>text : Symbol(text, Decl(signature.js, 16, 9))
+>value : Symbol(value, Decl(signature.js, 14, 30))
+}
+

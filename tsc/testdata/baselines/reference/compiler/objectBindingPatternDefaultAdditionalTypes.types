@@ -1,0 +1,256 @@
+//// [tests/cases/compiler/objectBindingPatternDefaultAdditionalTypes.ts] ////
+
+=== /rest.ts ===
+// Rest bindings must carry the remaining tuple or array type into nested defaults.
+export function tupleRest([... [{ value } = {}]]: [{ value?: number }]) {
+>tupleRest : ([...[{ value }]]: [{ value?: number; }]) => void
+>value : number | undefined
+>{} : {}
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export function arrayRest([... [{ value } = {}]]: { value?: number }[]) {
+>arrayRest : ([...[{ value }]]: { value?: number; }[]) => void
+>value : number | undefined
+>{} : {}
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export function tupleRestOffset([, ...[{ value } = {}]]: [boolean, { value?: number }]) {
+>tupleRestOffset : ([, ...[{ value }]]: [boolean, { value?: number; }]) => void
+>value : number | undefined
+>{} : {}
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export const contextualRest: (options: { value?: number }[]) => void = ([... [{ value } = {}]]) => {
+>contextualRest : (options: { value?: number; }[]) => void
+>options : { value?: number; }[]
+>value : number | undefined
+>([... [{ value } = {}]]) => {    const text: string = value;} : ([...[{ value }]]: { value?: number; }[]) => void
+>value : number | undefined
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+
+};
+export function iterableRest([... [{ value } = {}]]: Iterable<{ value?: number }>) {
+>iterableRest : ([...[{ value }]]: Iterable<{ value?: number; }>) => void
+>value : number | undefined
+>{} : {}
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export function constrainedTupleRest<T extends [boolean, { value?: number }]>([, ...[{ value } = {}]]: T) {
+>constrainedTupleRest : <T extends [boolean, { value?: number; }]>([, ...[{ value }]]: T) => void
+>value : number | undefined
+>value : number | undefined
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export function anyRest([... [{ value } = {}]]: any) {
+>anyRest : ([...[{ value }]]: any) => void
+>value : any
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : any
+}
+
+// Property names and generic constraints still provide the element type.
+declare const key: unique symbol;
+>key : unique symbol
+
+export function symbolKey({ [key]: { value } = {} }: { [key]?: { value?: number } }) {
+>symbolKey : ({ [key]: { value } }: { [key]?: { value?: number; }; }) => void
+>key : unique symbol
+>value : number | undefined
+>{} : {}
+>[key] : { value?: number; } | undefined
+>key : unique symbol
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export function genericConstraint<T extends { inner?: { value?: number } }>({ inner: { value } = {} }: T) {
+>genericConstraint : <T extends { inner?: { value?: number; }; }>({ inner: { value } }: T) => void
+>inner : { value?: number; } | undefined
+>value : number | undefined
+>inner : any
+>value : number | undefined
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+
+export class Accessor {
+>Accessor : Accessor
+
+    get options(): { inner?: { value?: number } } { return {}; }
+>options : { inner?: { value?: number; }; }
+>inner : { value?: number; } | undefined
+>value : number | undefined
+>{} : {}
+
+    set options({ inner: { value } = {} }) {
+>options : { inner?: { value?: number; }; }
+>inner : any
+>value : number | undefined
+>{} : {}
+
+        const text: string = value;
+>text : string
+>value : number | undefined
+    }
+}
+
+// A default with no supplied type must keep its implicit-any diagnostic.
+export function untypedRest([... [{ value } = {}]] = []) {
+>untypedRest : ([...[{ value }]]?: never[]) => void
+>value : any
+>{} : {}
+>[] : never[]
+
+    value;
+>value : any
+}
+export function missingRestTuple([, ...[{ value } = {}]]: [boolean]) {
+>missingRestTuple : ([, ...[{ value }]]: [boolean]) => void
+>value : never
+>{} : {}
+
+    value;
+>value : never
+}
+
+// The originally reported object cases and their array counterpart stay well typed.
+interface IssueInner {
+    a?: number;
+>a : number | undefined
+
+    b?: number;
+>b : number | undefined
+}
+interface IssueOuter {
+    inner?: IssueInner;
+>inner : IssueInner | undefined
+}
+export function withSibling({ inner: { a = 1, b } = {} }: IssueOuter) {
+>withSibling : ({ inner: { a, b } }: IssueOuter) => (number | undefined)[]
+>inner : any
+>a : number
+>1 : 1
+>b : number | undefined
+>{} : {}
+
+    const first: number = a;
+>first : number
+>a : number
+
+    const second: number | undefined = b;
+>second : number | undefined
+>b : number | undefined
+
+    return [first, second];
+>[first, second] : (number | undefined)[]
+>first : number
+>second : number | undefined
+}
+export function alone({ inner: { b } = {} }: IssueOuter) {
+>alone : ({ inner: { b } }: IssueOuter) => number | undefined
+>inner : any
+>b : number | undefined
+>{} : {}
+
+    const second: number | undefined = b;
+>second : number | undefined
+>b : number | undefined
+
+    return second;
+>second : number | undefined
+}
+export function arrayForm({ inner: [a = 1, b] = [] }: { inner?: number[] }) {
+>arrayForm : ({ inner: [a, b] }: { inner?: number[]; }) => number[]
+>inner : any
+>a : number
+>1 : 1
+>b : number
+>[] : never[]
+>inner : number[] | undefined
+
+    const first: number = a;
+>first : number
+>a : number
+
+    const second: number | undefined = b;
+>second : number | undefined
+>b : number
+
+    return [first, second];
+>[first, second] : number[]
+>first : number
+>second : number
+}
+
+=== /signature.js ===
+// JSDoc function signatures type parameters even without contextual functions.
+/** @type {(options?: { value?: number }) => void} */
+export function fullSignature({ value } = {}) {
+>fullSignature : (options?: { value?: number; }) => void
+>value : number | undefined
+>{} : {}
+
+    /** @type {string} */
+    const text = value;
+>text : string
+>value : number | undefined
+}
+
+/** @type {(options?: { inner?: { value?: number } }) => void} */
+export function nestedSignature({ inner: { value } = {} } = {}) {
+>nestedSignature : (options?: { inner?: { value?: number; }; }) => void
+>inner : any
+>value : number | undefined
+>{} : {}
+>{} : {}
+
+    /** @type {string} */
+    const text = value;
+>text : string
+>value : number | undefined
+}
+
+/** @param {{ value?: number }} options */
+export function parameterTag({ value } = {}) {
+>parameterTag : ({ value }?: { value?: number; }) => void
+>value : number | undefined
+>{} : {}
+
+    /** @type {string} */
+    const text = value;
+>text : string
+>value : number | undefined
+}
+

@@ -1,0 +1,132 @@
+//// [tests/cases/compiler/objectBindingPatternDefaultTypedElements.ts] ////
+
+=== objectBindingPatternDefaultTypedElements.ts ===
+// Explicit any already supplies a type; it must not become an implicit-any error.
+export function annotatedAny({ value }: any = {}) {
+>annotatedAny : ({ value }?: any) => void
+>value : any
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : any
+}
+export const contextualAny: (options?: any) => void = ({ value } = {}) => {
+>contextualAny : (options?: any) => void
+>options : any
+>({ value } = {}) => {    const text: string = value;} : ({ value }?: any) => void
+>value : any
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : any
+
+};
+
+// Index signatures supply types even without named properties.
+export const stringIndex: (options?: { [key: string]: number }) => void = ({ value } = {}) => {
+>stringIndex : (options?: { [key: string]: number; }) => void
+>options : { [key: string]: number; } | undefined
+>key : string
+>({ value } = {}) => {    const text: string = value;} : ({ value }?: { [key: string]: number; } | undefined) => void
+>value : number
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : number
+
+};
+export const numberIndex: (options?: { [key: number]: number }) => void = ({ 0: value } = {}) => {
+>numberIndex : (options?: { [key: number]: number; }) => void
+>options : { [key: number]: number; } | undefined
+>key : number
+>({ 0: value } = {}) => {    const text: string = value;} : ({ 0: value }?: { [key: number]: number; } | undefined) => void
+>value : number
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : number
+
+};
+export const nestedIndex: (options?: { [key: string]: { value?: number } }) => void = ({ entry: { value } = {} } = {}) => {
+>nestedIndex : (options?: { [key: string]: { value?: number; }; }) => void
+>options : { [key: string]: { value?: number; }; } | undefined
+>key : string
+>value : number | undefined
+>({ entry: { value } = {} } = {}) => {    const text: string = value;} : ({ entry: { value } }?: { [key: string]: { value?: number; }; } | undefined) => void
+>entry : any
+>value : number | undefined
+>{} : {}
+>{} : {}
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+
+};
+
+// A nested object can obtain its declared type through an array or iterable.
+export function annotatedArray([{ value } = {}]: { value?: number }[]) {
+>annotatedArray : ([{ value }]: { value?: number; }[]) => void
+>value : number | undefined
+>{} : {}
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export const contextualArray: (options?: { value?: number }[]) => void = ([{ value } = {}] = []) => {
+>contextualArray : (options?: { value?: number; }[]) => void
+>options : { value?: number; }[] | undefined
+>value : number | undefined
+>([{ value } = {}] = []) => {    const text: string = value;} : ([{ value }]?: { value?: number; }[] | undefined) => void
+>value : number | undefined
+>{} : {}
+>[] : never[]
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+
+};
+export function annotatedTuple([, { value } = {}]: [number, { value?: number }?]) {
+>annotatedTuple : ([, { value }]: [number, { value?: number; }?]) => void
+>value : number | undefined
+>{} : {}
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+export function annotatedIterable([{ value } = {}]: Iterable<{ value?: number }>) {
+>annotatedIterable : ([{ value }]: Iterable<{ value?: number; }>) => void
+>value : number | undefined
+>{} : {}
+>value : number | undefined
+
+    const text: string = value;
+>text : string
+>value : number | undefined
+}
+
+// Missing tuple elements and untyped parameters must keep their diagnostics.
+export function missingTuple([, { value } = {}]: [number]) {
+>missingTuple : ([, { value }]: [number]) => void
+>value : never
+>{} : {}
+
+    value;
+>value : never
+}
+export const untyped = ({ value } = {}) => value;
+>untyped : ({ value }?: { value?: any; }) => any
+>({ value } = {}) => value : ({ value }?: { value?: any; }) => any
+>value : any
+>{} : {}
+>value : any
+

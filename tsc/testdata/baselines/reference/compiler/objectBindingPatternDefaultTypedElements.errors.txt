@@ -1,0 +1,82 @@
+objectBindingPatternDefaultTypedElements.ts(11,11): error TS2322: Type 'number' is not assignable to type 'string'.
+objectBindingPatternDefaultTypedElements.ts(14,11): error TS2322: Type 'number' is not assignable to type 'string'.
+objectBindingPatternDefaultTypedElements.ts(17,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+objectBindingPatternDefaultTypedElements.ts(22,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+objectBindingPatternDefaultTypedElements.ts(25,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+objectBindingPatternDefaultTypedElements.ts(28,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+objectBindingPatternDefaultTypedElements.ts(31,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+objectBindingPatternDefaultTypedElements.ts(35,33): error TS2322: Type '{}' is not assignable to type 'never'.
+objectBindingPatternDefaultTypedElements.ts(35,35): error TS7031: Binding element 'value' implicitly has an 'any' type.
+objectBindingPatternDefaultTypedElements.ts(38,27): error TS7031: Binding element 'value' implicitly has an 'any' type.
+
+
+==== objectBindingPatternDefaultTypedElements.ts (10 errors) ====
+    // Explicit any already supplies a type; it must not become an implicit-any error.
+    export function annotatedAny({ value }: any = {}) {
+        const text: string = value;
+    }
+    export const contextualAny: (options?: any) => void = ({ value } = {}) => {
+        const text: string = value;
+    };
+    
+    // Index signatures supply types even without named properties.
+    export const stringIndex: (options?: { [key: string]: number }) => void = ({ value } = {}) => {
+        const text: string = value;
+              ~~~~
+!!! error TS2322: Type 'number' is not assignable to type 'string'.
+    };
+    export const numberIndex: (options?: { [key: number]: number }) => void = ({ 0: value } = {}) => {
+        const text: string = value;
+              ~~~~
+!!! error TS2322: Type 'number' is not assignable to type 'string'.
+    };
+    export const nestedIndex: (options?: { [key: string]: { value?: number } }) => void = ({ entry: { value } = {} } = {}) => {
+        const text: string = value;
+              ~~~~
+!!! error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+    };
+    
+    // A nested object can obtain its declared type through an array or iterable.
+    export function annotatedArray([{ value } = {}]: { value?: number }[]) {
+        const text: string = value;
+              ~~~~
+!!! error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+    }
+    export const contextualArray: (options?: { value?: number }[]) => void = ([{ value } = {}] = []) => {
+        const text: string = value;
+              ~~~~
+!!! error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+    };
+    export function annotatedTuple([, { value } = {}]: [number, { value?: number }?]) {
+        const text: string = value;
+              ~~~~
+!!! error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+    }
+    export function annotatedIterable([{ value } = {}]: Iterable<{ value?: number }>) {
+        const text: string = value;
+              ~~~~
+!!! error TS2322: Type 'number | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+    }
+    
+    // Missing tuple elements and untyped parameters must keep their diagnostics.
+    export function missingTuple([, { value } = {}]: [number]) {
+                                    ~~~~~~~~~
+!!! error TS2322: Type '{}' is not assignable to type 'never'.
+                                      ~~~~~
+!!! error TS7031: Binding element 'value' implicitly has an 'any' type.
+        value;
+    }
+    export const untyped = ({ value } = {}) => value;
+                              ~~~~~
+!!! error TS7031: Binding element 'value' implicitly has an 'any' type.
+    

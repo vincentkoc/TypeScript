@@ -1,0 +1,113 @@
+//// [tests/cases/compiler/objectBindingPatternDefaultTypedElements.ts] ////
+
+=== objectBindingPatternDefaultTypedElements.ts ===
+// Explicit any already supplies a type; it must not become an implicit-any error.
+export function annotatedAny({ value }: any = {}) {
+>annotatedAny : Symbol(annotatedAny, Decl(objectBindingPatternDefaultTypedElements.ts, 0, 0))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 1, 30))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 2, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 1, 30))
+}
+export const contextualAny: (options?: any) => void = ({ value } = {}) => {
+>contextualAny : Symbol(contextualAny, Decl(objectBindingPatternDefaultTypedElements.ts, 4, 12))
+>options : Symbol(options, Decl(objectBindingPatternDefaultTypedElements.ts, 4, 29))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 4, 56))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 5, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 4, 56))
+
+};
+
+// Index signatures supply types even without named properties.
+export const stringIndex: (options?: { [key: string]: number }) => void = ({ value } = {}) => {
+>stringIndex : Symbol(stringIndex, Decl(objectBindingPatternDefaultTypedElements.ts, 9, 12))
+>options : Symbol(options, Decl(objectBindingPatternDefaultTypedElements.ts, 9, 27))
+>key : Symbol(key, Decl(objectBindingPatternDefaultTypedElements.ts, 9, 40))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 9, 76))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 10, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 9, 76))
+
+};
+export const numberIndex: (options?: { [key: number]: number }) => void = ({ 0: value } = {}) => {
+>numberIndex : Symbol(numberIndex, Decl(objectBindingPatternDefaultTypedElements.ts, 12, 12))
+>options : Symbol(options, Decl(objectBindingPatternDefaultTypedElements.ts, 12, 27))
+>key : Symbol(key, Decl(objectBindingPatternDefaultTypedElements.ts, 12, 40))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 12, 76))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 13, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 12, 76))
+
+};
+export const nestedIndex: (options?: { [key: string]: { value?: number } }) => void = ({ entry: { value } = {} } = {}) => {
+>nestedIndex : Symbol(nestedIndex, Decl(objectBindingPatternDefaultTypedElements.ts, 15, 12))
+>options : Symbol(options, Decl(objectBindingPatternDefaultTypedElements.ts, 15, 27))
+>key : Symbol(key, Decl(objectBindingPatternDefaultTypedElements.ts, 15, 40))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 15, 55))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 15, 97))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 16, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 15, 97))
+
+};
+
+// A nested object can obtain its declared type through an array or iterable.
+export function annotatedArray([{ value } = {}]: { value?: number }[]) {
+>annotatedArray : Symbol(annotatedArray, Decl(objectBindingPatternDefaultTypedElements.ts, 17, 2))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 20, 33))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 20, 50))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 21, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 20, 33))
+}
+export const contextualArray: (options?: { value?: number }[]) => void = ([{ value } = {}] = []) => {
+>contextualArray : Symbol(contextualArray, Decl(objectBindingPatternDefaultTypedElements.ts, 23, 12))
+>options : Symbol(options, Decl(objectBindingPatternDefaultTypedElements.ts, 23, 31))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 23, 42))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 23, 76))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 24, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 23, 76))
+
+};
+export function annotatedTuple([, { value } = {}]: [number, { value?: number }?]) {
+>annotatedTuple : Symbol(annotatedTuple, Decl(objectBindingPatternDefaultTypedElements.ts, 25, 2))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 26, 35))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 26, 61))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 27, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 26, 35))
+}
+export function annotatedIterable([{ value } = {}]: Iterable<{ value?: number }>) {
+>annotatedIterable : Symbol(annotatedIterable, Decl(objectBindingPatternDefaultTypedElements.ts, 28, 1))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 29, 36))
+>Iterable : Symbol(Iterable, Decl(lib.es2015.iterable.d.ts, --, --))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 29, 62))
+
+    const text: string = value;
+>text : Symbol(text, Decl(objectBindingPatternDefaultTypedElements.ts, 30, 9))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 29, 36))
+}
+
+// Missing tuple elements and untyped parameters must keep their diagnostics.
+export function missingTuple([, { value } = {}]: [number]) {
+>missingTuple : Symbol(missingTuple, Decl(objectBindingPatternDefaultTypedElements.ts, 31, 1))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 34, 33))
+
+    value;
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 34, 33))
+}
+export const untyped = ({ value } = {}) => value;
+>untyped : Symbol(untyped, Decl(objectBindingPatternDefaultTypedElements.ts, 37, 12))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 37, 25))
+>value : Symbol(value, Decl(objectBindingPatternDefaultTypedElements.ts, 37, 25))
+
