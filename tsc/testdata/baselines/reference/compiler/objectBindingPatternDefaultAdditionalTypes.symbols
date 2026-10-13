@@ -204,6 +204,151 @@ export function arrayForm({ inner: [a = 1, b] = [] }: { inner?: number[] }) {
 >second : Symbol(second, Decl(rest.ts, 66, 9))
 }
 
+=== /returnedCallback.ts ===
+// A promised callback receives its contextual parameter type through the return.
+export async function prepareDeletion(): Promise<(options?: {
+>prepareDeletion : Symbol(prepareDeletion, Decl(returnedCallback.ts, 0, 0))
+>Promise : Symbol(Promise, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.promise.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+>options : Symbol(options, Decl(returnedCallback.ts, 1, 50))
+
+    assertCurrent?: () => void;
+>assertCurrent : Symbol(assertCurrent, Decl(returnedCallback.ts, 1, 61))
+
+    sessionEntryCurrent?: () => boolean;
+>sessionEntryCurrent : Symbol(sessionEntryCurrent, Decl(returnedCallback.ts, 2, 31))
+
+    retainedSessionKeys?: ReadonlySet<string>;
+>retainedSessionKeys : Symbol(retainedSessionKeys, Decl(returnedCallback.ts, 3, 40))
+>ReadonlySet : Symbol(ReadonlySet, Decl(lib.es2015.collection.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+
+}) => Promise<void>> {
+>Promise : Symbol(Promise, Decl(lib.es5.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --), Decl(lib.es2015.promise.d.ts, --, --), Decl(lib.es2015.symbol.wellknown.d.ts, --, --))
+
+    return async ({ assertCurrent, sessionEntryCurrent, retainedSessionKeys } = {}) => {
+>assertCurrent : Symbol(assertCurrent, Decl(returnedCallback.ts, 6, 19))
+>sessionEntryCurrent : Symbol(sessionEntryCurrent, Decl(returnedCallback.ts, 6, 34))
+>retainedSessionKeys : Symbol(retainedSessionKeys, Decl(returnedCallback.ts, 6, 55))
+
+        const assertion: (() => void) | undefined = assertCurrent;
+>assertion : Symbol(assertion, Decl(returnedCallback.ts, 7, 13))
+>assertCurrent : Symbol(assertCurrent, Decl(returnedCallback.ts, 6, 19))
+
+        const current: (() => boolean) | undefined = sessionEntryCurrent;
+>current : Symbol(current, Decl(returnedCallback.ts, 8, 13))
+>sessionEntryCurrent : Symbol(sessionEntryCurrent, Decl(returnedCallback.ts, 6, 34))
+
+        const keys: ReadonlySet<string> | undefined = retainedSessionKeys;
+>keys : Symbol(keys, Decl(returnedCallback.ts, 9, 13))
+>ReadonlySet : Symbol(ReadonlySet, Decl(lib.es2015.collection.d.ts, --, --), Decl(lib.es2015.iterable.d.ts, --, --))
+>retainedSessionKeys : Symbol(retainedSessionKeys, Decl(returnedCallback.ts, 6, 55))
+
+        const wrongAssertion: string = assertCurrent;
+>wrongAssertion : Symbol(wrongAssertion, Decl(returnedCallback.ts, 10, 13))
+>assertCurrent : Symbol(assertCurrent, Decl(returnedCallback.ts, 6, 19))
+
+        const wrongCurrent: string = sessionEntryCurrent;
+>wrongCurrent : Symbol(wrongCurrent, Decl(returnedCallback.ts, 11, 13))
+>sessionEntryCurrent : Symbol(sessionEntryCurrent, Decl(returnedCallback.ts, 6, 34))
+
+        const wrongKeys: string = retainedSessionKeys;
+>wrongKeys : Symbol(wrongKeys, Decl(returnedCallback.ts, 12, 13))
+>retainedSessionKeys : Symbol(retainedSessionKeys, Decl(returnedCallback.ts, 6, 55))
+
+    };
+}
+
+=== /genericCallback.ts ===
+// Indexed generic signatures retain the intersection's optional property types.
+interface WriteContext {
+>WriteContext : Symbol(WriteContext, Decl(genericCallback.ts, 0, 0))
+
+    write: <T>(operation: () => T, options?: { busyTimeoutMs?: number; operationLabel?: string }) => T;
+>write : Symbol(WriteContext.write, Decl(genericCallback.ts, 1, 24))
+>T : Symbol(T, Decl(genericCallback.ts, 2, 12))
+>operation : Symbol(operation, Decl(genericCallback.ts, 2, 15))
+>T : Symbol(T, Decl(genericCallback.ts, 2, 12))
+>options : Symbol(options, Decl(genericCallback.ts, 2, 34))
+>busyTimeoutMs : Symbol(busyTimeoutMs, Decl(genericCallback.ts, 2, 46))
+>operationLabel : Symbol(operationLabel, Decl(genericCallback.ts, 2, 70))
+>T : Symbol(T, Decl(genericCallback.ts, 2, 12))
+
+    writeAdmitted: <T>(operation: () => T, options?: Parameters<WriteContext["write"]>[1] & {
+>writeAdmitted : Symbol(WriteContext.writeAdmitted, Decl(genericCallback.ts, 2, 103))
+>T : Symbol(T, Decl(genericCallback.ts, 3, 20))
+>operation : Symbol(operation, Decl(genericCallback.ts, 3, 23))
+>T : Symbol(T, Decl(genericCallback.ts, 3, 20))
+>options : Symbol(options, Decl(genericCallback.ts, 3, 42))
+>Parameters : Symbol(Parameters, Decl(lib.es5.d.ts, --, --))
+>WriteContext : Symbol(WriteContext, Decl(genericCallback.ts, 0, 0))
+
+        receipt?: "result";
+>receipt : Symbol(receipt, Decl(genericCallback.ts, 3, 93))
+
+        transactionEnvironment?: "process";
+>transactionEnvironment : Symbol(transactionEnvironment, Decl(genericCallback.ts, 4, 27))
+
+    }) => T;
+>T : Symbol(T, Decl(genericCallback.ts, 3, 20))
+}
+export const writeAdmitted: WriteContext["writeAdmitted"] = (
+>writeAdmitted : Symbol(writeAdmitted, Decl(genericCallback.ts, 8, 12))
+>WriteContext : Symbol(WriteContext, Decl(genericCallback.ts, 0, 0))
+
+    operation,
+>operation : Symbol(operation, Decl(genericCallback.ts, 8, 61))
+
+    { receipt, transactionEnvironment, ...options } = {},
+>receipt : Symbol(receipt, Decl(genericCallback.ts, 10, 5))
+>transactionEnvironment : Symbol(transactionEnvironment, Decl(genericCallback.ts, 10, 14))
+>options : Symbol(options, Decl(genericCallback.ts, 10, 38))
+
+) => {
+    const kind: "result" | undefined = receipt;
+>kind : Symbol(kind, Decl(genericCallback.ts, 12, 9))
+>receipt : Symbol(receipt, Decl(genericCallback.ts, 10, 5))
+
+    const environment: "process" | undefined = transactionEnvironment;
+>environment : Symbol(environment, Decl(genericCallback.ts, 13, 9))
+>transactionEnvironment : Symbol(transactionEnvironment, Decl(genericCallback.ts, 10, 14))
+
+    const timeout: number | undefined = options.busyTimeoutMs;
+>timeout : Symbol(timeout, Decl(genericCallback.ts, 14, 9))
+>options.busyTimeoutMs : Symbol(busyTimeoutMs, Decl(genericCallback.ts, 2, 46))
+>options : Symbol(options, Decl(genericCallback.ts, 10, 38))
+>busyTimeoutMs : Symbol(busyTimeoutMs, Decl(genericCallback.ts, 2, 46))
+
+    const wrongKind: "other" = receipt;
+>wrongKind : Symbol(wrongKind, Decl(genericCallback.ts, 15, 9))
+>receipt : Symbol(receipt, Decl(genericCallback.ts, 10, 5))
+
+    const wrongEnvironment: "other" = transactionEnvironment;
+>wrongEnvironment : Symbol(wrongEnvironment, Decl(genericCallback.ts, 16, 9))
+>transactionEnvironment : Symbol(transactionEnvironment, Decl(genericCallback.ts, 10, 14))
+
+    const wrongTimeout: boolean = options.busyTimeoutMs;
+>wrongTimeout : Symbol(wrongTimeout, Decl(genericCallback.ts, 17, 9))
+>options.busyTimeoutMs : Symbol(busyTimeoutMs, Decl(genericCallback.ts, 2, 46))
+>options : Symbol(options, Decl(genericCallback.ts, 10, 38))
+>busyTimeoutMs : Symbol(busyTimeoutMs, Decl(genericCallback.ts, 2, 46))
+
+    return operation();
+>operation : Symbol(operation, Decl(genericCallback.ts, 8, 61))
+
+};
+const writtenNumber = writeAdmitted(() => 1, { receipt: "result", transactionEnvironment: "process" });
+>writtenNumber : Symbol(writtenNumber, Decl(genericCallback.ts, 20, 5))
+>writeAdmitted : Symbol(writeAdmitted, Decl(genericCallback.ts, 8, 12))
+>receipt : Symbol(receipt, Decl(genericCallback.ts, 20, 46))
+>transactionEnvironment : Symbol(transactionEnvironment, Decl(genericCallback.ts, 20, 65))
+
+const numberResult: number = writtenNumber;
+>numberResult : Symbol(numberResult, Decl(genericCallback.ts, 21, 5))
+>writtenNumber : Symbol(writtenNumber, Decl(genericCallback.ts, 20, 5))
+
+const wrongResult: string = writtenNumber;
+>wrongResult : Symbol(wrongResult, Decl(genericCallback.ts, 22, 5))
+>writtenNumber : Symbol(writtenNumber, Decl(genericCallback.ts, 20, 5))
+
 === /signature.js ===
 // JSDoc function signatures type parameters even without contextual functions.
 /** @type {(options?: { value?: number }) => void} */

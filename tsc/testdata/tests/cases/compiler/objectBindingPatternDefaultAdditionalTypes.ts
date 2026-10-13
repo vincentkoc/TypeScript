@@ -75,6 +75,48 @@ export function arrayForm({ inner: [a = 1, b] = [] }: { inner?: number[] }) {
     return [first, second];
 }
 
+// @filename: /returnedCallback.ts
+// A promised callback receives its contextual parameter type through the return.
+export async function prepareDeletion(): Promise<(options?: {
+    assertCurrent?: () => void;
+    sessionEntryCurrent?: () => boolean;
+    retainedSessionKeys?: ReadonlySet<string>;
+}) => Promise<void>> {
+    return async ({ assertCurrent, sessionEntryCurrent, retainedSessionKeys } = {}) => {
+        const assertion: (() => void) | undefined = assertCurrent;
+        const current: (() => boolean) | undefined = sessionEntryCurrent;
+        const keys: ReadonlySet<string> | undefined = retainedSessionKeys;
+        const wrongAssertion: string = assertCurrent;
+        const wrongCurrent: string = sessionEntryCurrent;
+        const wrongKeys: string = retainedSessionKeys;
+    };
+}
+
+// @filename: /genericCallback.ts
+// Indexed generic signatures retain the intersection's optional property types.
+interface WriteContext {
+    write: <T>(operation: () => T, options?: { busyTimeoutMs?: number; operationLabel?: string }) => T;
+    writeAdmitted: <T>(operation: () => T, options?: Parameters<WriteContext["write"]>[1] & {
+        receipt?: "result";
+        transactionEnvironment?: "process";
+    }) => T;
+}
+export const writeAdmitted: WriteContext["writeAdmitted"] = (
+    operation,
+    { receipt, transactionEnvironment, ...options } = {},
+) => {
+    const kind: "result" | undefined = receipt;
+    const environment: "process" | undefined = transactionEnvironment;
+    const timeout: number | undefined = options.busyTimeoutMs;
+    const wrongKind: "other" = receipt;
+    const wrongEnvironment: "other" = transactionEnvironment;
+    const wrongTimeout: boolean = options.busyTimeoutMs;
+    return operation();
+};
+const writtenNumber = writeAdmitted(() => 1, { receipt: "result", transactionEnvironment: "process" });
+const numberResult: number = writtenNumber;
+const wrongResult: string = writtenNumber;
+
 // @filename: /signature.js
 // JSDoc function signatures type parameters even without contextual functions.
 /** @type {(options?: { value?: number }) => void} */

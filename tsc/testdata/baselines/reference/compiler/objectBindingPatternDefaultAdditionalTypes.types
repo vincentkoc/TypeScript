@@ -214,6 +214,146 @@ export function arrayForm({ inner: [a = 1, b] = [] }: { inner?: number[] }) {
 >second : number
 }
 
+=== /returnedCallback.ts ===
+// A promised callback receives its contextual parameter type through the return.
+export async function prepareDeletion(): Promise<(options?: {
+>prepareDeletion : () => Promise<(options?: { assertCurrent?: () => void; sessionEntryCurrent?: () => boolean; retainedSessionKeys?: ReadonlySet<string>; }) => Promise<void>>
+>options : { assertCurrent?: () => void; sessionEntryCurrent?: () => boolean; retainedSessionKeys?: ReadonlySet<string>; } | undefined
+
+    assertCurrent?: () => void;
+>assertCurrent : (() => void) | undefined
+
+    sessionEntryCurrent?: () => boolean;
+>sessionEntryCurrent : (() => boolean) | undefined
+
+    retainedSessionKeys?: ReadonlySet<string>;
+>retainedSessionKeys : ReadonlySet<string> | undefined
+
+}) => Promise<void>> {
+    return async ({ assertCurrent, sessionEntryCurrent, retainedSessionKeys } = {}) => {
+>async ({ assertCurrent, sessionEntryCurrent, retainedSessionKeys } = {}) => {        const assertion: (() => void) | undefined = assertCurrent;        const current: (() => boolean) | undefined = sessionEntryCurrent;        const keys: ReadonlySet<string> | undefined = retainedSessionKeys;        const wrongAssertion: string = assertCurrent;        const wrongCurrent: string = sessionEntryCurrent;        const wrongKeys: string = retainedSessionKeys;    } : ({ assertCurrent, sessionEntryCurrent, retainedSessionKeys }?: { assertCurrent?: () => void; sessionEntryCurrent?: () => boolean; retainedSessionKeys?: ReadonlySet<string>; } | undefined) => Promise<void>
+>assertCurrent : (() => void) | undefined
+>sessionEntryCurrent : (() => boolean) | undefined
+>retainedSessionKeys : ReadonlySet<string> | undefined
+>{} : {}
+
+        const assertion: (() => void) | undefined = assertCurrent;
+>assertion : (() => void) | undefined
+>assertCurrent : (() => void) | undefined
+
+        const current: (() => boolean) | undefined = sessionEntryCurrent;
+>current : (() => boolean) | undefined
+>sessionEntryCurrent : (() => boolean) | undefined
+
+        const keys: ReadonlySet<string> | undefined = retainedSessionKeys;
+>keys : ReadonlySet<string> | undefined
+>retainedSessionKeys : ReadonlySet<string> | undefined
+
+        const wrongAssertion: string = assertCurrent;
+>wrongAssertion : string
+>assertCurrent : (() => void) | undefined
+
+        const wrongCurrent: string = sessionEntryCurrent;
+>wrongCurrent : string
+>sessionEntryCurrent : (() => boolean) | undefined
+
+        const wrongKeys: string = retainedSessionKeys;
+>wrongKeys : string
+>retainedSessionKeys : ReadonlySet<string> | undefined
+
+    };
+}
+
+=== /genericCallback.ts ===
+// Indexed generic signatures retain the intersection's optional property types.
+interface WriteContext {
+    write: <T>(operation: () => T, options?: { busyTimeoutMs?: number; operationLabel?: string }) => T;
+>write : <T>(operation: () => T, options?: { busyTimeoutMs?: number; operationLabel?: string; }) => T
+>operation : () => T
+>options : { busyTimeoutMs?: number; operationLabel?: string; } | undefined
+>busyTimeoutMs : number | undefined
+>operationLabel : string | undefined
+
+    writeAdmitted: <T>(operation: () => T, options?: Parameters<WriteContext["write"]>[1] & {
+>writeAdmitted : <T>(operation: () => T, options?: Parameters<WriteContext["write"]>[1] & { receipt?: "result"; transactionEnvironment?: "process"; }) => T
+>operation : () => T
+>options : ({ busyTimeoutMs?: number; operationLabel?: string; } & { receipt?: "result"; transactionEnvironment?: "process"; }) | undefined
+
+        receipt?: "result";
+>receipt : "result" | undefined
+
+        transactionEnvironment?: "process";
+>transactionEnvironment : "process" | undefined
+
+    }) => T;
+}
+export const writeAdmitted: WriteContext["writeAdmitted"] = (
+>writeAdmitted : <T>(operation: () => T, options?: Parameters<WriteContext["write"]>[1] & { receipt?: "result"; transactionEnvironment?: "process"; }) => T
+>(    operation,    { receipt, transactionEnvironment, ...options } = {},) => {    const kind: "result" | undefined = receipt;    const environment: "process" | undefined = transactionEnvironment;    const timeout: number | undefined = options.busyTimeoutMs;    const wrongKind: "other" = receipt;    const wrongEnvironment: "other" = transactionEnvironment;    const wrongTimeout: boolean = options.busyTimeoutMs;    return operation();} : <T>(operation: () => T, { receipt, transactionEnvironment, ...options }?: ({ busyTimeoutMs?: number; operationLabel?: string; } & { receipt?: "result"; transactionEnvironment?: "process"; }) | undefined) => T
+
+    operation,
+>operation : () => T
+
+    { receipt, transactionEnvironment, ...options } = {},
+>receipt : "result" | undefined
+>transactionEnvironment : "process" | undefined
+>options : { busyTimeoutMs?: number; operationLabel?: string; }
+>{} : {}
+
+) => {
+    const kind: "result" | undefined = receipt;
+>kind : "result" | undefined
+>receipt : "result" | undefined
+
+    const environment: "process" | undefined = transactionEnvironment;
+>environment : "process" | undefined
+>transactionEnvironment : "process" | undefined
+
+    const timeout: number | undefined = options.busyTimeoutMs;
+>timeout : number | undefined
+>options.busyTimeoutMs : number | undefined
+>options : { busyTimeoutMs?: number; operationLabel?: string; }
+>busyTimeoutMs : number | undefined
+
+    const wrongKind: "other" = receipt;
+>wrongKind : "other"
+>receipt : "result" | undefined
+
+    const wrongEnvironment: "other" = transactionEnvironment;
+>wrongEnvironment : "other"
+>transactionEnvironment : "process" | undefined
+
+    const wrongTimeout: boolean = options.busyTimeoutMs;
+>wrongTimeout : boolean
+>options.busyTimeoutMs : number | undefined
+>options : { busyTimeoutMs?: number; operationLabel?: string; }
+>busyTimeoutMs : number | undefined
+
+    return operation();
+>operation() : T
+>operation : () => T
+
+};
+const writtenNumber = writeAdmitted(() => 1, { receipt: "result", transactionEnvironment: "process" });
+>writtenNumber : number
+>writeAdmitted(() => 1, { receipt: "result", transactionEnvironment: "process" }) : number
+>writeAdmitted : <T>(operation: () => T, options?: Parameters<WriteContext["write"]>[1] & { receipt?: "result"; transactionEnvironment?: "process"; }) => T
+>() => 1 : () => number
+>1 : 1
+>{ receipt: "result", transactionEnvironment: "process" } : { receipt: "result"; transactionEnvironment: "process"; }
+>receipt : "result"
+>"result" : "result"
+>transactionEnvironment : "process"
+>"process" : "process"
+
+const numberResult: number = writtenNumber;
+>numberResult : number
+>writtenNumber : number
+
+const wrongResult: string = writtenNumber;
+>wrongResult : string
+>writtenNumber : number
+
 === /signature.js ===
 // JSDoc function signatures type parameters even without contextual functions.
 /** @type {(options?: { value?: number }) => void} */

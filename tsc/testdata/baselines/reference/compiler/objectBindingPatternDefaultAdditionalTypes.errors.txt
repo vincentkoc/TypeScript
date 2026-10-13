@@ -1,3 +1,10 @@
+/genericCallback.ts(16,11): error TS2322: Type '"result" | undefined' is not assignable to type '"other"'.
+  Type 'undefined' is not assignable to type '"other"'.
+/genericCallback.ts(17,11): error TS2322: Type '"process" | undefined' is not assignable to type '"other"'.
+  Type 'undefined' is not assignable to type '"other"'.
+/genericCallback.ts(18,11): error TS2322: Type 'number | undefined' is not assignable to type 'boolean'.
+  Type 'undefined' is not assignable to type 'boolean'.
+/genericCallback.ts(23,7): error TS2322: Type 'number' is not assignable to type 'string'.
 /rest.ts(3,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 /rest.ts(6,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
@@ -19,6 +26,12 @@
 /rest.ts(41,37): error TS7031: Binding element 'value' implicitly has an 'any' type.
 /rest.ts(44,41): error TS2322: Type '{}' is not assignable to type 'never'.
 /rest.ts(44,43): error TS7031: Binding element 'value' implicitly has an 'any' type.
+/returnedCallback.ts(11,15): error TS2322: Type '(() => void) | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+/returnedCallback.ts(12,15): error TS2322: Type '(() => boolean) | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+/returnedCallback.ts(13,15): error TS2322: Type 'ReadonlySet<string> | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
 /signature.js(5,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
   Type 'undefined' is not assignable to type 'string'.
 /signature.js(11,11): error TS2322: Type 'number | undefined' is not assignable to type 'string'.
@@ -130,6 +143,68 @@
         const second: number | undefined = b;
         return [first, second];
     }
+    
+==== /returnedCallback.ts (3 errors) ====
+    // A promised callback receives its contextual parameter type through the return.
+    export async function prepareDeletion(): Promise<(options?: {
+        assertCurrent?: () => void;
+        sessionEntryCurrent?: () => boolean;
+        retainedSessionKeys?: ReadonlySet<string>;
+    }) => Promise<void>> {
+        return async ({ assertCurrent, sessionEntryCurrent, retainedSessionKeys } = {}) => {
+            const assertion: (() => void) | undefined = assertCurrent;
+            const current: (() => boolean) | undefined = sessionEntryCurrent;
+            const keys: ReadonlySet<string> | undefined = retainedSessionKeys;
+            const wrongAssertion: string = assertCurrent;
+                  ~~~~~~~~~~~~~~
+!!! error TS2322: Type '(() => void) | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+            const wrongCurrent: string = sessionEntryCurrent;
+                  ~~~~~~~~~~~~
+!!! error TS2322: Type '(() => boolean) | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+            const wrongKeys: string = retainedSessionKeys;
+                  ~~~~~~~~~
+!!! error TS2322: Type 'ReadonlySet<string> | undefined' is not assignable to type 'string'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'string'.
+        };
+    }
+    
+==== /genericCallback.ts (4 errors) ====
+    // Indexed generic signatures retain the intersection's optional property types.
+    interface WriteContext {
+        write: <T>(operation: () => T, options?: { busyTimeoutMs?: number; operationLabel?: string }) => T;
+        writeAdmitted: <T>(operation: () => T, options?: Parameters<WriteContext["write"]>[1] & {
+            receipt?: "result";
+            transactionEnvironment?: "process";
+        }) => T;
+    }
+    export const writeAdmitted: WriteContext["writeAdmitted"] = (
+        operation,
+        { receipt, transactionEnvironment, ...options } = {},
+    ) => {
+        const kind: "result" | undefined = receipt;
+        const environment: "process" | undefined = transactionEnvironment;
+        const timeout: number | undefined = options.busyTimeoutMs;
+        const wrongKind: "other" = receipt;
+              ~~~~~~~~~
+!!! error TS2322: Type '"result" | undefined' is not assignable to type '"other"'.
+!!! error TS2322:   Type 'undefined' is not assignable to type '"other"'.
+        const wrongEnvironment: "other" = transactionEnvironment;
+              ~~~~~~~~~~~~~~~~
+!!! error TS2322: Type '"process" | undefined' is not assignable to type '"other"'.
+!!! error TS2322:   Type 'undefined' is not assignable to type '"other"'.
+        const wrongTimeout: boolean = options.busyTimeoutMs;
+              ~~~~~~~~~~~~
+!!! error TS2322: Type 'number | undefined' is not assignable to type 'boolean'.
+!!! error TS2322:   Type 'undefined' is not assignable to type 'boolean'.
+        return operation();
+    };
+    const writtenNumber = writeAdmitted(() => 1, { receipt: "result", transactionEnvironment: "process" });
+    const numberResult: number = writtenNumber;
+    const wrongResult: string = writtenNumber;
+          ~~~~~~~~~~~
+!!! error TS2322: Type 'number' is not assignable to type 'string'.
     
 ==== /signature.js (3 errors) ====
     // JSDoc function signatures type parameters even without contextual functions.
